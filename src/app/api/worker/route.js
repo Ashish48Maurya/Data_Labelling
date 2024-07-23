@@ -22,6 +22,7 @@ export async function POST(req) {
 
             if (user) {
                 const token = generateToken(user._id);
+
                 return NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
             }
             else {
@@ -31,6 +32,7 @@ export async function POST(req) {
 
                 const newUser = await user.save();
                 const token = generateToken(newUser._id);
+
                 return NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
             }
         }

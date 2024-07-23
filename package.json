@@ -18,6 +18,7 @@
     "@solana/web3.js": "^1.95.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "cookie": "^0.6.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.412.0",
     "mongoose": "^8.5.1",

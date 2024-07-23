@@ -8,6 +8,7 @@ import {
 import { clusterApiUrl } from '@solana/web3.js';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from '../components/context';
 
 export default function RootLayout({ children }) {
     const network = WalletAdapterNetwork.Devnet;
@@ -19,14 +20,16 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en" className='mx-[20px]'>
             <body>
-                <ConnectionProvider endpoint={endpoint}>
-                    <WalletProvider wallets={wallets} autoConnect>
-                        <WalletModalProvider>
-                            {children}
-                            <Toaster />
-                        </WalletModalProvider>
-                    </WalletProvider>
-                </ConnectionProvider>
+                <AuthProvider>
+                    <ConnectionProvider endpoint={endpoint}>
+                        <WalletProvider wallets={wallets} autoConnect>
+                            <WalletModalProvider>
+                                {children}
+                                <Toaster />
+                            </WalletModalProvider>
+                        </WalletProvider>
+                    </ConnectionProvider>
+                </AuthProvider>
             </body>
         </html>
     );

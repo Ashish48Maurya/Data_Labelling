@@ -11,6 +11,5 @@ export async function mongoConnect() {
     }
 }
 export const generateToken = (_id) => {
-    return jwt.sign({ _id }, "HelloAshish48");
-    // return jwt.sign({ _id }, process.env.JWT_SECRET);
+    return jwt.sign({ _id }, process.env.JWT_SECRET);
 };

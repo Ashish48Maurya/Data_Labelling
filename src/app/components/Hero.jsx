@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { Transaction, SystemProgram, PublicKey, Connection as SolanaConnection } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 
+import { redirect } from 'next/navigation';
+
 export default function Hero() {
     const wHeight = window.innerHeight * 0.89;
     const [files, setFiles] = useState([]);
@@ -13,12 +15,14 @@ export default function Hero() {
     const amount = "500000000";
     const { publicKey, sendTransaction } = useWallet();
     const Signature = localStorage.getItem('txnSignature');
+    const token = localStorage.getItem('token')
     
     const saveTask = async () => {
         const res = await fetch('/api/user/task', {
             method: "POST",
             headers: {
-                'Content-Type': "application/json"
+                'Content-Type': "application/json",
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 uploadedFileUrls,
@@ -54,7 +58,8 @@ export default function Hero() {
                 const response = await fetch(presignedUrl, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': file.type
+                        'Content-Type': file.type,
+                        'Authorization': `Bearer ${token}`
                     },
                     body: file
                 });
@@ -105,7 +110,6 @@ export default function Hero() {
             toast.error("Transaction failed: "+ error.message);
         }
     };
-
 
     return (
         <>

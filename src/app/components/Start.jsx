@@ -64,6 +64,7 @@ export default function Start() {
                 }
                 else {
                     toast.success(data.message);
+                    localStorage.setItem("token",data.data)
                     if (mode == "worker") {
                         router.push('/worker')
                     } else {

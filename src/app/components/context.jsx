@@ -1,5 +1,8 @@
 "use client";
-import React, { useState, createContext, useContext, useMemo } from 'react';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { clusterApiUrl } from '@solana/web3.js';
+import React, { useState, createContext, useContext,useEffect, useMemo } from 'react';
+import toast from 'react-hot-toast';
 
 // import { useRouter } from 'next/navigation';
 
@@ -11,7 +14,7 @@ export const AuthProvider = ({ children }) => {
     const wallets = useMemo(() => [], [network]);
 
     return (
-        <AuthContext.Provider value={{ wallets, endpoint }}>
+        <AuthContext.Provider value={{wallets, endpoint }}>
             {children}
         </AuthContext.Provider>
     );
@@ -24,7 +27,4 @@ export const useAuth = () => {
     }
     return context;
 };
-
-
-
 
