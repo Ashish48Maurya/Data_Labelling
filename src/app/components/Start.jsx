@@ -24,6 +24,7 @@ export default function Start() {
         }
         try {
             if (publicKey && mode) {
+                
                 let res;
                 if (mode == 'user') {
                     const message = "SignIn To EarnAsUGo";

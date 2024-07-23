@@ -44,17 +44,6 @@ const WorkerSchema = new mongoose.Schema({
     }]
 });
 
-const PaySlip = new mongoose.Schema({
-    amount: {
-        type: mongoose.Schema.Types.Decimal128,
-        default: mongoose.Types.Decimal128.fromString('0'),
-    },
-    signature: {
-        type: String,
-        required: true,
-        default: "null"
-    }
-})
 
 const TaskSchema = new mongoose.Schema({
     title: {
@@ -70,9 +59,14 @@ const TaskSchema = new mongoose.Schema({
         type: String,
         required: true
     }],
-    paySlip:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref: "paySlip",
+    amount: {
+        type: mongoose.Schema.Types.Decimal128,
+        default: mongoose.Types.Decimal128.fromString('0'),
+    },
+    signature: {
+        type: String,
+        required: true,
+        default: "null"
     },
     noOfSuggestionsWant: {
         type: Number,
