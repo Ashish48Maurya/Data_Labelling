@@ -12,12 +12,7 @@ const UserSchema = new mongoose.Schema({
     payOuts: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "payout",
-    }],
-    isVerified: {
-        type: Boolean,
-        required: true,
-        default: false,
-    }
+    }]
 });
 
 const WorkerSchema = new mongoose.Schema({
@@ -55,9 +50,15 @@ const TaskSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"
     },
-    image_url: [{ // just like options 1 2 3 4
-        type: String,
-        required: true
+    image_url: [{
+        url: { 
+            type: String, 
+            required: true 
+        },
+        noOfClick: {
+            type: Number,
+            default: 0,
+        }
     }],
     amount: {
         type: mongoose.Schema.Types.Decimal128,
@@ -118,9 +119,8 @@ const PayOutSchema = new mongoose.Schema({
     }
 });
 
-mongoose.models = {};
-export const User = mongoose.model("user", UserSchema);
-export const Worker = mongoose.model("worker", WorkerSchema);
-export const Task = mongoose.model("task", TaskSchema);
-export const Submission = mongoose.model("submission", SubmissionSchema);
-export const PayOut = mongoose.model("payout", PayOutSchema);
+export const User = mongoose.models.user || mongoose.model("user", UserSchema);
+export const Worker = mongoose.models.worker || mongoose.model("worker", WorkerSchema);
+export const Task = mongoose.models.task || mongoose.model("task", TaskSchema);
+export const Submission = mongoose.models.submission || mongoose.model("submission", SubmissionSchema);
+export const PayOut = mongoose.models.PayOut || mongoose.model("PayOut", PayOutSchema);

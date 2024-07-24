@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import nacl from "tweetnacl";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import jwt from 'jsonwebtoken'
 
 export async function POST(req) {
     const { publicKey, signature, message } = await req.json();
@@ -51,12 +52,23 @@ const client = new S3Client({
     }
 });
 
-export async function GET() {
-
+export async function GET(req) {
+    const token = req.headers.get('authorization');
+    if (!token) {
+        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided" }, { status: 401 });
+    }
+    const jwtToken = token.replace(/^Bearer\s/, "").trim();
     try {
+        await mongoConnect();
+        const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
+        const userData = await (User.findOne({ _id: isVerified._id }) || Worker.findOne({ _id: isVerified._id }));
+        if (!userData) {
+            return NextResponse.json({ message: "User not found" });
+        }
+        const randomString = Math.random().toString(36).substring(2, 15);
         const command = new PutObjectCommand({
             Bucket: "blockchain.practice.project",
-            Key: `images/${Date.now()}.jpg`,
+            Key: `images/${userData._id}/${Date.now()}-${randomString}.jpg`,
             ContentType: 'image/jpeg'
         });
 

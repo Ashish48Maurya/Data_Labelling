@@ -4,20 +4,23 @@ import toast from 'react-hot-toast';
 import { Transaction, SystemProgram, PublicKey, Connection as SolanaConnection } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 
-import { redirect } from 'next/navigation';
-
 export default function Hero() {
     const wHeight = window.innerHeight * 0.89;
     const [files, setFiles] = useState([]);
     const [text, setText] = useState();
-    const uploadedFileUrls = [];
     const [loader, setLoader] = useState(false);
     const amount = "500000000";
     const { publicKey, sendTransaction } = useWallet();
-    const Signature = localStorage.getItem('txnSignature');
     const token = localStorage.getItem('token')
-    
+    const uploadedFileUrls = [];
+
     const saveTask = async () => {
+        const Signature = localStorage.getItem('txnSignature');
+        console.log(Signature);
+        console.log(uploadedFileUrls,
+            text,
+            amount,
+            Signature);
         const res = await fetch('/api/user/task', {
             method: "POST",
             headers: {
@@ -28,15 +31,15 @@ export default function Hero() {
                 uploadedFileUrls,
                 text,
                 amount,
-                Signature,
+                Signature: localStorage.getItem('txnSignature'),
             })
         })
         const ans = await res.json();
-        if(!ans.success){
+        if (!ans.success) {
             toast.error("Task Submission Failed, Please try Again");
             return;
         }
-        else{
+        else {
             toast.success("Task Submitted");
             localStorage.removeItem('txnSignature')
         }
@@ -49,35 +52,55 @@ export default function Hero() {
             toast.error('No files selected');
             return;
         }
+
         try {
             setLoader(true);
-            const presignedUrlResponse = await fetch('/api/user');
-            const { data: presignedUrl } = await presignedUrlResponse.json();
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                const response = await fetch(presignedUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': file.type,
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: file
-                });
+                console.log(`Uploading file: ${file.name}`);
 
-                if (response.ok) {
-                    toast.success(`File ${file.name} uploaded successfully`);
-                    uploadedFileUrls.push(presignedUrl.split('?')[0]);
-                    await saveTask();
-                } else {
-                    toast.error(`Upload failed for ${file.name}:`, response.statusText);
+                try {
+                    const presignedUrlResponse = await fetch('/api/user', {
+                        method: "GET",
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    const { data: presignedUrl } = await presignedUrlResponse.json();
+                    
+                    const response = await fetch(presignedUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': file.type,
+                        },
+                        body: file
+                    });
+
+                    if (response.ok) {
+                        toast.success(`File ${file.name} uploaded successfully`);
+                        uploadedFileUrls.push(presignedUrl.split('?')[0]);
+                    } else {
+                        console.error(`Upload failed for ${file.name}:`, response.statusText);
+                        toast.error(`Upload failed for ${file.name}: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error(`Error uploading file ${file.name}:`, error);
+                    toast.error(`Error uploading file ${file.name}: ${error.message}`);
                 }
             }
-            setLoader(false);
+
+            if (uploadedFileUrls.length === files.length) {
+                await saveTask();
+            } else {
+                toast.error('Some files failed to upload. Please try again.');
+            }
         } catch (error) {
             console.error('Error:', error);
+            toast.error('An error occurred during the upload process.');
+        } finally {
+            setLoader(false);
         }
     };
-
 
     const pay = async () => {
         const connection = new SolanaConnection("https://api.devnet.solana.com");
@@ -107,11 +130,12 @@ export default function Hero() {
             localStorage.setItem('txnSignature', signature);
             toast.success("Transaction successful");
         } catch (error) {
-            toast.error("Transaction failed: "+ error.message);
+            toast.error("Transaction failed: " + error.message);
         }
     };
 
     return (
+
         <>
             {
                 loader == true ? <div class="flex flex-col gap-2 items-center justify-center relative" style={{ height: `${wHeight}px` }}>
@@ -134,7 +158,7 @@ export default function Hero() {
                         </div>
                         <div className='w-max mx-auto mb-[5px]'>
                             {
-                                Signature ?
+                                localStorage.getItem('txnSignature') ?
                                     <button onClick={handleSubmit} className=" cursor-pointer hover:bg-white hover:text-black rounded-md bg-black mt-[10px] p-[10px] text-white">Upload</button> :
                                     <button onClick={pay} className=" cursor-pointer hover:bg-white hover:text-black rounded-md bg-black mt-[10px] p-[10px] text-white">Pay 0.5 sol</button>
                             }
