@@ -67,7 +67,7 @@ export async function GET(req) {
         }
         const randomString = Math.random().toString(36).substring(2, 15);
         const command = new PutObjectCommand({
-            Bucket: "blockchain.practice.project",
+            Bucket: "aws-cloud-front-error",
             Key: `images/${userData._id}/${Date.now()}-${randomString}.jpg`,
             ContentType: 'image/jpeg'
         });

@@ -7,6 +7,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 export default function Hero() {
     const wHeight = window.innerHeight * 0.89;
     const [files, setFiles] = useState([]);
+    const [dfiles, setDFiles] = useState([]);
     const [text, setText] = useState();
     const [loader, setLoader] = useState(false);
     const amount = "500000000";
@@ -42,6 +43,8 @@ export default function Hero() {
         else {
             toast.success("Task Submitted");
             localStorage.removeItem('txnSignature')
+            setDFiles([]);
+            setFiles([]);
         }
         console.log(ans);
     }
@@ -67,7 +70,7 @@ export default function Hero() {
                         }
                     });
                     const { data: presignedUrl } = await presignedUrlResponse.json();
-                    
+
                     const response = await fetch(presignedUrl, {
                         method: 'PUT',
                         headers: {
@@ -134,6 +137,12 @@ export default function Hero() {
         }
     };
 
+    const handleFileChange = (e) => {
+        setFiles(e.target.files)
+        const selectedFiles = Array.from(e.target.files);
+        setDFiles(selectedFiles.map(file => URL.createObjectURL(file)));
+    };
+
     return (
 
         <>
@@ -148,13 +157,14 @@ export default function Hero() {
                             <input className=' bg-black text-white font-semibold p-2 rounded-md outline-none' type="text" placeholder='Type Your Question Here...' onChange={(e) => { setText(e.target.value) }} />
                         </div>
                         <div className='mt-[15px]  w-fit mx-auto' >
-                            <input className='p-1 bg-black rounded-lg border-black text-white' type="file" multiple onChange={(e) => { setFiles(e.target.files) }} />
+                            <input className='p-1 bg-black rounded-lg border-black text-white' type="file" multiple onChange={handleFileChange}   /> 
+                            {/* onChange={(e) => { setFiles(e.target.files) }} */} 
+                            {/* onChange={handleFileChange} */}
                         </div>
                         <div className=' gap-1 grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 lg:mx-[150px] my-3'>
-                            <img class=" rounded-sm lg:rounded-md m-2 h-[220px] w-[230px] lg:h-[250px] lg:w-[250px] mx-auto" src="404.png" alt="image description" />
-                            <img class=" rounded-sm lg:rounded-md m-2 h-[220px] w-[230px] lg:h-[250px] lg:w-[250px] mx-auto" src="404.png" alt="image description" />
-                            <img class=" rounded-sm lg:rounded-md m-2 h-[220px] w-[230px] lg:h-[250px] lg:w-[250px] mx-auto" src="404.png" alt="image description" />
-                            <img class=" rounded-sm lg:rounded-md m-2 h-[220px] w-[230px] lg:h-[250px] lg:w-[250px] mx-auto" src="404.png" alt="image description" />
+                            {dfiles?.map((src, index) => (
+                                <img key={index} className="rounded-sm lg:rounded-md m-2 h-[220px] w-[230px] lg:h-[250px] lg:w-[250px] mx-auto" src={src} alt="Selected file" />
+                            ))}
                         </div>
                         <div className='w-max mx-auto mb-[5px]'>
                             {
