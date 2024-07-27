@@ -55,15 +55,16 @@ const client = new S3Client({
 export async function GET(req) {
     const token = req.headers.get('authorization');
     if (!token) {
-        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided" }, { status: 401 });
+        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided",success:false }, { status: 401 });
     }
     const jwtToken = token.replace(/^Bearer\s/, "").trim();
     try {
         await mongoConnect();
         const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        const userData = await (User.findOne({ _id: isVerified._id }) || Worker.findOne({ _id: isVerified._id }));
+        // const userData = await (User.findOne({ _id: isVerified._id }) || Worker.findOne({ _id: isVerified._id }));
+        const userData = await User.findOne({ _id: isVerified._id });
         if (!userData) {
-            return NextResponse.json({ message: "User not found" });
+            return NextResponse.json({ message: "User not found, Login First",success:false },{status:404});
         }
         const randomString = Math.random().toString(36).substring(2, 15);
         const command = new PutObjectCommand({

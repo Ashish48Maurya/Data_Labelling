@@ -17,7 +17,7 @@ export async function POST(req) {
         const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
         const userData = await (User.findOne({ _id: isVerified._id }) || Worker.findOne({ _id: isVerified._id }));
         if (!userData) {
-            return NextResponse.json({ message: "User not found" });
+            return NextResponse.json({ message: "User not found,Login First",success:false },{status:404});
         }
         else {
             const { uploadedFileUrls, text, amount, Signature } = await req.json();

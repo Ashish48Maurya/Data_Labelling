@@ -49,15 +49,12 @@ export default function Hero1() {
 
     const markTask = async () => {
        if(selectedImageID){
-            const res = await fetch('/api/worker',{
+            const res = await fetch(`/api/worker/task?id=${selectedImageID}`,{
                 method:"PUT",
                 headers:{
                     "Authorization":`Bearer ${token}`,
                     "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    selectedImageID
-                })
+                }
             })
        }
        else{
