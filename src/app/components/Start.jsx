@@ -5,9 +5,11 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import toast from "react-hot-toast";
 import { decodeUTF8 } from "tweetnacl-util";
+import { useAuth } from "./context";
 
 export default function Start() {
     const { publicKey, signMessage } = useWallet();
+    const {setPerson} = useAuth();
     const [mode, setMode] = useState('worker');
     const router = useRouter();
     const [isChecked, setIsChecked] = useState(true);
@@ -24,7 +26,7 @@ export default function Start() {
         }
         try {
             if (publicKey && mode) {
-                
+                setPerson(mode)
                 let res;
                 if (mode == 'user') {
                     const message = "SignIn To EarnAsUGo";

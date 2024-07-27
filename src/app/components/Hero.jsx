@@ -163,7 +163,7 @@ export default function Hero() {
                         </div>
                         <div className=' gap-1 grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 lg:mx-[150px] my-3'>
                             {dfiles?.map((src, index) => (
-                                <img key={index} className="rounded-sm lg:rounded-md m-2 h-[220px] w-[230px] lg:h-[250px] lg:w-[250px] mx-auto" src={src} alt="Selected file" />
+                                <img key={index} className="rounded-sm lg:rounded-md m-2 h-[220px] w-[230px] lg:h-[250px] lg:w-[250px] mx-auto bg-cover" src={src} alt="Selected file" />
                             ))}
                         </div>
                         <div className='w-max mx-auto mb-[5px]'>

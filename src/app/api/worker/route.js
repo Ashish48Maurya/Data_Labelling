@@ -1,7 +1,8 @@
-import { Worker } from '@/app/model/user';
+import { Task, Worker,User } from '@/app/model/user';
 import { generateToken, mongoConnect } from '@/app/utils/feature';
 import { PublicKey } from '@solana/web3.js';
 import { NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken'
 import nacl from "tweetnacl";
 
 export async function POST(req) {
@@ -43,3 +44,24 @@ export async function POST(req) {
     }
 }
 
+export async function GET(req) {
+    const token = req.headers.get('authorization');
+    console.log(token);
+    if (!token) {
+        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided" }, { status: 401 });
+    }
+    const jwtToken = token.replace(/^Bearer\s/, "").trim();
+    try {
+        await mongoConnect();
+        const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
+        const userData = await Worker.findOne({ _id: isVerified._id });
+        if (!userData) {
+            return NextResponse.json({ message: "User not found" },{status:400});
+        }
+        const task = await Task.find({ isCompleted: false }).select("-signature");
+        return NextResponse.json({ data: task, success: true }, { status: 200 });
+    }
+    catch (err) {
+        return NextResponse.json({ message: `Internal Server Error: ${err.message}`, success: false }, { status: 500 })
+    }
+}
