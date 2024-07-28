@@ -2,8 +2,11 @@
 import { useWallet } from '@solana/wallet-adapter-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useAuth } from './context';
+import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 
 export default function Hero1() {
+    const { setAmt } = useAuth();
     const wHeight = window.innerHeight * 0.89;
     const [tasks, setTasks] = useState([]);
     const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
@@ -18,8 +21,27 @@ export default function Hero1() {
         setSelectedImage(imgIndex);
     };
 
-    const getTasks = async () => {
+    const getUser = async () => {
         const res = await fetch('/api/worker', {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const data = await res.json();
+        if (!data.success) {
+            toast.error(data.message);
+        }
+        else {
+            console.log(data.data);
+            // setAmt(parseFloat(data?.data?.pending_amt?.$numberDecimal));
+            // setAmt(data?.data.pending_amt);
+            setAmt(data?.data?.pending_amt);
+        }
+    }
+
+    const getTasks = async () => {
+        const res = await fetch('/api/worker/task', {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -45,21 +67,30 @@ export default function Hero1() {
 
     useEffect(() => {
         getTasks();
+        getUser();
     }, []);
 
     const markTask = async () => {
-       if(selectedImageID){
-            const res = await fetch(`/api/worker/task?id=${selectedImageID}`,{
-                method:"PUT",
-                headers:{
-                    "Authorization":`Bearer ${token}`,
-                    "Content-Type":"application/json"
+        if (selectedImageID) {
+            const res = await fetch(`/api/worker/task?id=${selectedImageID}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
                 }
             })
-       }
-       else{
-        toast.error("Select One Option First");
-       }
+            const data = await res.json();
+            if (!data.success) {
+                toast.error(data.message);
+            }
+            else {
+                console.log(data.data);
+                setCurrentTaskIndex(currentTaskIndex + 1);
+            }
+        }
+        else {
+            toast.error("Select One Option First");
+        }
     };
 
     const handleNext = () => {
@@ -101,7 +132,7 @@ export default function Hero1() {
                         <div className='text-center'>
                             {publicKey && (
                                 <button className='bg-black p-[10px] text-white font-semibold rounded-md' onClick={markTask}>
-                                    Earn {Number(currentTask.amount.$numberDecimal) / (1000000000 * currentTask.noOfSuggestionsWant)} sol
+                                    Earn {parseFloat(currentTask.amount.$numberDecimal) / currentTask.noOfSuggestionsWant} sol
                                 </button>
                             )}
                         </div>

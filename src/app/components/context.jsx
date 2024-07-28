@@ -13,9 +13,10 @@ export const AuthProvider = ({ children }) => {
     const endpoint = useMemo(() => clusterApiUrl(network), [network]);
     const wallets = useMemo(() => [], [network]);
     const [person,setPerson] = useState('worker');
+    const [amt,setAmt] = useState(0);
 
     return (
-        <AuthContext.Provider value={{wallets, endpoint,setPerson }}>
+        <AuthContext.Provider value={{wallets, endpoint,setPerson,setAmt,amt }}>
             {children}
         </AuthContext.Provider>
     );

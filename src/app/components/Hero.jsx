@@ -10,9 +10,10 @@ export default function Hero() {
     const [dfiles, setDFiles] = useState([]);
     const [text, setText] = useState();
     const [loader, setLoader] = useState(false);
-    const amount = "500000000";
+    const amount = process.env.NEXT_PUBLIC_AMT;
     const { publicKey, sendTransaction } = useWallet();
     const token = localStorage.getItem('token')
+    const [sign,setSign] = useState(null)
     const uploadedFileUrls = [];
 
     const saveTask = async () => {
@@ -118,7 +119,7 @@ export default function Hero() {
                 SystemProgram.transfer({
                     fromPubkey: publicKey,
                     toPubkey: new PublicKey("AZSvvASdYtgMsDWjrRNbf58BXiA4cMhWLfDpTSieSzoN"),
-                    lamports: amount,
+                    lamports: amount*1000000000,
                 })
             );
 
@@ -131,6 +132,7 @@ export default function Hero() {
 
             await connection.confirmTransaction({ blockhash, lastValidBlockHeight, signature });
             localStorage.setItem('txnSignature', signature);
+            setSign(signature)
             toast.success("Transaction successful");
         } catch (error) {
             toast.error("Transaction failed: " + error.message);
@@ -168,9 +170,10 @@ export default function Hero() {
                         </div>
                         <div className='w-max mx-auto mb-[5px]'>
                             {
-                                localStorage.getItem('txnSignature') ?
+                                // localStorage.getItem('txnSignature') ?
+                                sign ?
                                     <button onClick={handleSubmit} className=" cursor-pointer hover:bg-white hover:text-black rounded-md bg-black mt-[10px] p-[10px] text-white">Upload</button> :
-                                    <button onClick={pay} className=" cursor-pointer hover:bg-white hover:text-black rounded-md bg-black mt-[10px] p-[10px] text-white">Pay 0.5 sol</button>
+                                    <button onClick={pay} className=" cursor-pointer hover:bg-white hover:text-black rounded-md bg-black mt-[10px] p-[10px] text-white">Pay 0.5 SOL</button>
                             }
                         </div>
                     </div>

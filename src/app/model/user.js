@@ -26,12 +26,12 @@ const WorkerSchema = new mongoose.Schema({
         default: false,
     },
     pending_amt: {
-        // type: mongoose.Schema.Types.Decimal128,
-        // default: mongoose.Types.Decimal128.fromString('0'),
+        type: mongoose.Schema.Types.Decimal128,
+        default: mongoose.Types.Decimal128.fromString('0'),
     },
     locked_amt: {
-        // type: mongoose.Schema.Types.Decimal128,
-        // default: mongoose.Types.Decimal128.fromString('0'),
+        type: mongoose.Schema.Types.Decimal128,
+        default: mongoose.Types.Decimal128.fromString('0'),
     },
     submissions: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -80,7 +80,11 @@ const TaskSchema = new mongoose.Schema({
     isCompleted: {
         type: Boolean,
         default: false
-    }
+    },
+    workers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "worker"
+    }]
 });
 
 const SubmissionSchema = new mongoose.Schema({
@@ -94,8 +98,7 @@ const SubmissionSchema = new mongoose.Schema({
     },
     worker: {  // Ensure only one submission per task per worker
         type: mongoose.Schema.Types.ObjectId,
-        ref: "worker",
-        unique: true
+        ref: "worker"
     }
 });
 
