@@ -54,9 +54,16 @@ export async function PUT(req) {
             })
         );
 
+        console.log(userData.locked_amt * 1000000000);
+
         const signature = await sendAndConfirmTransaction(connection, transaction, [keyPair]);
-        const checkTransaction = await connection.getTransaction(signature);
-        if ((checkTransaction?.meta?.postBalances[1] ?? 0) - (checkTransaction?.meta?.preBalances[1] ?? 0) == userData.locked_amt * 1000000000) {
+        console.log(signature);
+        // const checkTransaction = await connection.getTransaction(signature,{
+        //     maxSupportedTransactionVersion: 1
+        // });
+
+        // if ((checkTransaction?.meta?.postBalances[1] ?? 0) - (checkTransaction?.meta?.preBalances[1] ?? 0) == userData.locked_amt * 1000000000) {
+        if (signature){
             userData.locked_amt = mongoose.Types.Decimal128.fromString("0");
             return NextResponse.json({ message: "Payment Successful", success: true }, { status: 200 });
         } else {

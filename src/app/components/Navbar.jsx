@@ -28,6 +28,7 @@ export default function Navbar() {
        if(!data.success){
             toast.error(data.message);
        }
+       console.log(data);
        setAmt(0);
        toast.success(data.message);
     }

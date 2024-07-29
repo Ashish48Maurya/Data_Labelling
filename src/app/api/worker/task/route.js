@@ -71,6 +71,7 @@ export async function PUT(req) {
 
 
             return NextResponse.json({
+                data: userData.pending_amt,
                 message: `You Earned ${earnedSol}sol`,
                 success: true
             }, { status: 200 });

@@ -3,7 +3,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from './context';
-import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 
 export default function Hero1() {
     const { setAmt } = useAuth();
@@ -84,8 +83,11 @@ export default function Hero1() {
                 toast.error(data.message);
             }
             else {
-                console.log(data.data);
+                setAmt(data.data);
+                toast.success(data.message)
                 setCurrentTaskIndex(currentTaskIndex + 1);
+                setSelectedImageID(null);
+                setSelectedImage(null);
             }
         }
         else {
@@ -118,16 +120,16 @@ export default function Hero1() {
                         <div className='gap-1 grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 lg:mx-[150px] my-5'>
                             {currentTask.image_url.map((src, imgIndex) => (
                                 <div key={imgIndex} className='flex flex-col gap-1'>
-                                    <span>{src._id}</span>
                                     <img
                                         className={`rounded-sm lg:rounded-md m-2 h-[220px] w-[230px] lg:h-[250px] lg:w-[250px] mx-auto ${selectedImage === imgIndex ? 'border-4 border-black' : ''}`}
-                                        // src={src.url}
+                                        src={src.url}
                                         alt={`Image ${imgIndex + 1}`}
                                         onClick={() => handleImageClick(src._id, imgIndex)}
                                     />
                                     <span className='text-center text-xl lg:text-2xl font-extrabold'>{imgIndex + 1}</span>
                                 </div>
                             ))}
+
                         </div>
                         <div className='text-center'>
                             {publicKey && (
