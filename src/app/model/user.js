@@ -116,7 +116,7 @@ const PayOutSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["processing", "success", "failure"],
+        enum: ["processing", "success", "failed"],
         default: "processing",
     }
 });

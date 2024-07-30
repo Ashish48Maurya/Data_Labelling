@@ -1,10 +1,11 @@
-import { Worker } from "@/app/model/user";
+import { PayOut, Worker } from "@/app/model/user";
 import { mongoConnect } from "@/app/utils/feature";
 import { Connection, Keypair, PublicKey, SystemProgram, sendAndConfirmTransaction, Transaction } from "@solana/web3.js";
 import jwt from 'jsonwebtoken';
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import bs58 from 'bs58'; // Import bs58 for decoding
+import cron from "node-cron"
 
 const connection = new Connection("https://api.devnet.solana.com");
 
@@ -15,7 +16,7 @@ export async function PUT(req) {
     }
 
     const jwtToken = token.replace(/^Bearer\s/, "").trim();
-    let userData;
+    let userData, payOut;
 
     try {
         await mongoConnect();
@@ -32,7 +33,7 @@ export async function PUT(req) {
         }
 
 
-        if(userData.pending_amt == 0){
+        if (userData.pending_amt == 0) {
             return NextResponse.json({ message: "0 SOL Credited to your Wallet 😂 ", success: true }, { status: 200 });
         }
 
@@ -40,7 +41,10 @@ export async function PUT(req) {
         userData.pending_amt = mongoose.Types.Decimal128.fromString("0");
         await userData.save();
 
-
+        payOut = new PayOut({
+            amount: userData.locked_amt,
+            worker: userData._id
+        })
 
         const secretKeyBase58 = process.env.PRIVATE_KEY;
         const secretKeyUint8Array = bs58.decode(secretKeyBase58);
@@ -54,27 +58,35 @@ export async function PUT(req) {
             })
         );
 
-        console.log(userData.locked_amt * 1000000000);
 
         const signature = await sendAndConfirmTransaction(connection, transaction, [keyPair]);
-        console.log(signature);
         // const checkTransaction = await connection.getTransaction(signature,{
         //     maxSupportedTransactionVersion: 1
         // });
-
         // if ((checkTransaction?.meta?.postBalances[1] ?? 0) - (checkTransaction?.meta?.preBalances[1] ?? 0) == userData.locked_amt * 1000000000) {
-        if (signature){
-            userData.locked_amt = mongoose.Types.Decimal128.fromString("0");
+
+        if (signature) {
+            payOut.status = "success",
+                userData.locked_amt = mongoose.Types.Decimal128.fromString("0");
             return NextResponse.json({ message: "Payment Successful", success: true }, { status: 200 });
         } else {
-            userData.pending_amt = userData.locked_amt;
+            payOut.status = "failed",
+                userData.pending_amt = userData.locked_amt;
             userData.locked_amt = mongoose.Types.Decimal128.fromString("0");
             return NextResponse.json({ message: "Payment Fails, Try again Later", success: false }, { status: 500 });
         }
-
     } catch (err) {
+        payOut.status = "failed";
+        userData.pending_amt = userData.locked_amt;
+        userData.locked_amt = mongoose.Types.Decimal128.fromString("0");
         return NextResponse.json({ message: `Internal Server Error: ${err.message}`, success: false }, { status: 500 });
     } finally {
         if (userData) await userData.save();
+        if (payOut) await payOut.save();
     }
 }
+
+// const task = cron.schedule('* * * * *', () => {
+//     console.log('running every minute 1, 2, 4 and 5');
+// });
+// task.start();
