@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     const [amt,setAmt] = useState(0);
 
     return (
-        <AuthContext.Provider value={{wallets, endpoint,setPerson,setAmt,amt }}>
+        <AuthContext.Provider value={{wallets, endpoint,person,setPerson,setAmt,amt }}>
             {children}
         </AuthContext.Provider>
     );

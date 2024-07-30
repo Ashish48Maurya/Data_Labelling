@@ -1,28 +1,22 @@
 import { Submission, Task, Worker } from "@/app/model/user";
-import { mongoConnect } from "@/app/utils/feature";
+import { checkAuth, mongoConnect } from "@/app/utils/feature";
 import { NextResponse } from "next/server";
-import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
 
 export async function PUT(req) {
-    const token = req.headers.get('authorization');
-    if (!token) {
-        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided", success: false }, { status: 401 });
-    }
-    const jwtToken = token.replace(/^Bearer\s/, "").trim();
-    const id = new URL(req.url).searchParams.get('id');
+    const Imgid = new URL(req.url).searchParams.get('id');
 
 
     try {
         await mongoConnect();
-        const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        const userData = await Worker.findOne({ _id: isVerified._id });
+        const id = await checkAuth(req)
+        const userData = await Worker.findOne({ _id: id });
         if (!userData) {
             return NextResponse.json({ message: "User not found,Login First", success: false }, { status: 404 });
         }
 
 
-        const task = await Task.findOne({ 'image_url._id': id });
+        const task = await Task.findOne({ 'image_url._id': Imgid });
         if (task) {
             if (task.isCompleted) {
                 return NextResponse.json({
@@ -87,16 +81,11 @@ export async function PUT(req) {
 
 
 export async function GET(req) {
-    const token = req.headers.get('authorization');
-    console.log(token);
-    if (!token) {
-        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided", success: false }, { status: 401 });
-    }
-    const jwtToken = token.replace(/^Bearer\s/, "").trim();
+   
     try {
         await mongoConnect();
-        const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        const userData = await Worker.findOne({ _id: isVerified._id });
+        const id = await checkAuth(req)
+        const userData = await Worker.findOne({ _id: id });
         if (!userData) {
             return NextResponse.json({ message: "User not found,Login First", success: false }, { status: 404 });
         }

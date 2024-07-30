@@ -23,9 +23,7 @@ export default function Hero1() {
     const getUser = async () => {
         const res = await fetch('/api/worker', {
             method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
+            credentials: 'include',
         });
         const data = await res.json();
         if (!data.success) {
@@ -40,29 +38,38 @@ export default function Hero1() {
     }
 
     const getTasks = async () => {
-        const res = await fetch('/api/worker/task', {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
+        try {
+            const res = await fetch('/api/worker/task', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            const data = await res.json();
+    
+            if (!data.success) {
+                toast.error(data.message);
+            } else {
+                const updatedUrls = data.data.map(task => ({
+                    ...task,
+                    image_url: task.image_url.map(imgObj => ({
+                        ...imgObj,
+                        url: imgObj.url.replace(
+                            "https://aws-cloud-front-error.s3.ap-south-1.amazonaws.com",
+                            `https://${process.env.NEXT_PUBLIC_CDN}.cloudfront.net`
+                        )
+                    }))
+                }));
+                setTasks(updatedUrls);
             }
-        });
-        const data = await res.json();
-        if (!data.success) {
-            toast.error(data.message);
-        } else {
-            const updatedUrls = data.data.map(task => ({
-                ...task,
-                image_url: task.image_url.map(imgObj => ({
-                    ...imgObj,
-                    url: imgObj.url.replace(
-                        "https://aws-cloud-front-error.s3.ap-south-1.amazonaws.com",
-                        `https://${process.env.NEXT_PUBLIC_CDN}.cloudfront.net`
-                    )
-                }))
-            }));
-            setTasks(updatedUrls);
+        } catch (error) {
+            console.error('Failed to fetch tasks:', error);
+            toast.error('An error occurred while fetching tasks.');
         }
     };
+    
 
     useEffect(() => {
         getTasks();
@@ -73,8 +80,8 @@ export default function Hero1() {
         if (selectedImageID) {
             const res = await fetch(`/api/worker/task?id=${selectedImageID}`, {
                 method: "PUT",
+                credentials: 'include',
                 headers: {
-                    "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 }
             })

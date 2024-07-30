@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
+import cookie from 'cookie'
 export async function mongoConnect() {
     try {
         // await mongoose.connect(process.env.MONGO_URL);
@@ -12,4 +13,19 @@ export async function mongoConnect() {
 }
 export const generateToken = (_id) => {
     return jwt.sign({ _id }, process.env.JWT_SECRET);
+};
+
+export const checkAuth = async (req) => {
+    try {
+        const isPresent = req.headers.get('cookie')?.includes('token');
+        const token = req.headers.get('cookie').split("=")[1];
+        if (isPresent) {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET );
+            return decoded._id;
+        }
+        return null;
+    } catch (err) {
+        console.error('Token verification failed:', err);
+        return null;
+    }
 };

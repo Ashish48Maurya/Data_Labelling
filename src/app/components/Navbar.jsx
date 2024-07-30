@@ -12,7 +12,6 @@ export default function Navbar() {
     const { publicKey } = useWallet();
     const [disable, setDisable] = useState(false);
     const [processing, setProcessing] = useState(false);
-    const token = localStorage.getItem('token');
 
     const handlePayOut = async () => {
         console.log("called");
@@ -21,8 +20,8 @@ export default function Navbar() {
         try {
             const res = await fetch('/api/worker/payout', {
                 method: "PUT",
+                credentials: 'include',
                 headers: {
-                    "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ publicKey })
@@ -56,13 +55,15 @@ export default function Navbar() {
             )}
 
             {publicKey && (
-                <button
-                    disabled={disable}
-                    onClick={handlePayOut}
-                    className='bg-black p-[10px] text-white font-semibold rounded-md'
-                >
-                    {processing ? 'Processing...' : `Withdraw - ${amt.$numberDecimal || 0} SOL`}
-                </button>
+                person === "worker" && (
+                    <button
+                        disabled={disable}
+                        onClick={handlePayOut}
+                        className='bg-black p-[10px] text-white font-semibold rounded-md'
+                    >
+                        {processing ? 'Processing...' : `Withdraw - ${amt?.$numberDecimal || 0} SOL`}
+                    </button>
+                )
             )}
 
             <WalletMultiButton style={{ backgroundColor: "orange", color: "black" }} />

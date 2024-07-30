@@ -1,11 +1,10 @@
 import { User } from '@/app/model/user';
-import { generateToken, mongoConnect } from '@/app/utils/feature';
+import { checkAuth, generateToken, mongoConnect } from '@/app/utils/feature';
 import { PublicKey } from '@solana/web3.js';
 import { NextResponse } from 'next/server';
 import nacl from "tweetnacl";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import jwt from 'jsonwebtoken'
 
 export async function POST(req) {
     const { publicKey, signature, message } = await req.json();
@@ -25,7 +24,11 @@ export async function POST(req) {
 
             if (user) {
                 const token = generateToken(user._id);
-                return NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
+                const res = NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
+                res.cookies.set("token",token,{
+                    httpOnly: true,
+                })
+                return res;
             }
             else {
                 user = new User({
@@ -34,7 +37,11 @@ export async function POST(req) {
 
                 const newUser = await user.save();
                 const token = generateToken(newUser._id);
-                return NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
+                const res = NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
+                res.cookies.set("token",token,{
+                    httpOnly: true,
+                })
+                return res;
             }
         }
         return NextResponse.json({ message: "Verification Fail", success: false }, { status: 400 })
@@ -53,18 +60,12 @@ const client = new S3Client({
 });
 
 export async function GET(req) {
-    const token = req.headers.get('authorization');
-    if (!token) {
-        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided",success:false }, { status: 401 });
-    }
-    const jwtToken = token.replace(/^Bearer\s/, "").trim();
     try {
+        const id = await checkAuth(req)
         await mongoConnect();
-        const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        // const userData = await (User.findOne({ _id: isVerified._id }) || Worker.findOne({ _id: isVerified._id }));
-        const userData = await User.findOne({ _id: isVerified._id });
+        const userData = await User.findOne({ _id: id });
         if (!userData) {
-            return NextResponse.json({ message: "User not found, Login First",success:false },{status:404});
+            return NextResponse.json({ message: "User not found, Login First", success: false }, { status: 404 });
         }
         const randomString = Math.random().toString(36).substring(2, 15);
         const command = new PutObjectCommand({

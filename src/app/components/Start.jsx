@@ -48,6 +48,7 @@ export default function Start() {
                     const message = "SignIn To EarnAsUGo";
                     const messageBytes = decodeUTF8(message);
                     const signature = await signMessage(messageBytes)
+                    
                     res = await fetch('/api/worker', {
                         method: 'POST',
                         headers: {
@@ -66,7 +67,6 @@ export default function Start() {
                 }
                 else {
                     toast.success(data.message);
-                    localStorage.setItem("token",data.data)
                     if (mode == "worker") {
                         router.push('/worker')
                     } else {

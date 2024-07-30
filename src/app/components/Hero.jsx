@@ -25,9 +25,9 @@ export default function Hero() {
             Signature);
         const res = await fetch('/api/user/task', {
             method: "POST",
+            credentials: 'include',
             headers: {
                 'Content-Type': "application/json",
-                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 uploadedFileUrls,
@@ -66,9 +66,8 @@ export default function Hero() {
                 try {
                     const presignedUrlResponse = await fetch('/api/user', {
                         method: "GET",
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
+                        credentials: 'include',
+                        
                     });
                     const { data: presignedUrl } = await presignedUrlResponse.json();
 

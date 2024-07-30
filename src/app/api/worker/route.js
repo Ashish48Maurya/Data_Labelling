@@ -1,8 +1,7 @@
 import { Worker } from '@/app/model/user';
-import { generateToken, mongoConnect } from '@/app/utils/feature';
+import { checkAuth, generateToken, mongoConnect } from '@/app/utils/feature';
 import { PublicKey } from '@solana/web3.js';
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken'
 import nacl from "tweetnacl";
 
 export async function POST(req) {
@@ -23,8 +22,12 @@ export async function POST(req) {
 
             if (user) {
                 const token = generateToken(user._id);
-
-                return NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
+                const res = NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
+                res.cookies.set("token",token,{
+                    httpOnly: true,
+                })
+                return res;
+                
             }
             else {
                 user = new Worker({
@@ -34,7 +37,11 @@ export async function POST(req) {
                 const newUser = await user.save();
                 const token = generateToken(newUser._id);
 
-                return NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
+                const res = NextResponse.json({ data: token, success: true, message: "Login Successful" }, { status: 200 });
+                res.cookies.set("token",token,{
+                    httpOnly: true,
+                })
+                return res;
             }
         }
         return NextResponse.json({ message: "Verification Fail", success: false }, { status: 400 })
@@ -45,15 +52,10 @@ export async function POST(req) {
 }
 
 export async function GET(req) {
-    const token = req.headers.get('authorization');
-    if (!token) {
-        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided", success: false }, { status: 401 });
-    }
-    const jwtToken = token.replace(/^Bearer\s/, "").trim();
     try {
         await mongoConnect();
-        const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        const userData = await Worker.findOne({ _id: isVerified._id });
+        const id = await checkAuth(req)
+        const userData = await Worker.findOne({ _id: id });
         if (!userData) {
             return NextResponse.json({ message: "User not found, Login First", success: false }, { status: 404 });
         }

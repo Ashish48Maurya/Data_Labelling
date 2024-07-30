@@ -3,19 +3,14 @@ import { NextResponse } from "next/server";
 import { Connection } from "@solana/web3.js";
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
-import { mongoConnect } from "@/app/utils/feature";
+import { checkAuth, mongoConnect } from "@/app/utils/feature";
 
 
 export async function POST(req) {
-    const token = req.headers.get('authorization');
-    if (!token) {
-        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided" }, { status: 401 });
-    }
-    const jwtToken = token.replace(/^Bearer\s/, "").trim();
     try {
+        const id = await checkAuth(req)
         await mongoConnect();
-        const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        const userData = await (User.findOne({ _id: isVerified._id }) || Worker.findOne({ _id: isVerified._id }));
+        const userData = await (User.findOne({ _id: id }) || Worker.findOne({ _id: id }));
         if (!userData) {
             return NextResponse.json({ message: "User not found,Login First",success:false },{status:404});
         }

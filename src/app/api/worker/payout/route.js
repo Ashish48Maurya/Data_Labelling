@@ -1,27 +1,21 @@
 import { PayOut, Worker } from "@/app/model/user";
-import { mongoConnect } from "@/app/utils/feature";
+import { checkAuth, mongoConnect } from "@/app/utils/feature";
 import { Connection, Keypair, PublicKey, SystemProgram, sendAndConfirmTransaction, Transaction } from "@solana/web3.js";
 import jwt from 'jsonwebtoken';
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
-import bs58 from 'bs58'; // Import bs58 for decoding
-import cron from "node-cron"
+import bs58 from 'bs58';
+// import cron from "node-cron"
 
 const connection = new Connection("https://api.devnet.solana.com");
 
 export async function PUT(req) {
-    const token = req.headers.get('authorization');
-    if (!token) {
-        return NextResponse.json({ message: "Unauthorized HTTP, Token not provided", success: false }, { status: 401 });
-    }
-
-    const jwtToken = token.replace(/^Bearer\s/, "").trim();
     let userData, payOut;
 
     try {
+        const id = await checkAuth(req)
         await mongoConnect();
-        const isVerified = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        userData = await Worker.findOne({ _id: isVerified._id });
+        userData = await Worker.findOne({ _id: id });
 
         if (!userData) {
             return NextResponse.json({ message: "User not found,Login First", success: false }, { status: 404 });

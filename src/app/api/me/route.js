@@ -1,5 +1,5 @@
+import { checkAuth } from "@/app/utils/feature";
 import { User } from "../../model/user";
-import { checkAuth } from "../../../middleware";
 
 export async function GET(req) {
     const id = await checkAuth(req);
