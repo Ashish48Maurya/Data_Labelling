@@ -5,8 +5,6 @@ import mongoose from "mongoose";
 
 export async function PUT(req) {
     const Imgid = new URL(req.url).searchParams.get('id');
-
-
     try {
         await mongoConnect();
         const id = await checkAuth(req)

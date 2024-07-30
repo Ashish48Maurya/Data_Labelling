@@ -12,7 +12,7 @@ export async function POST(req) {
         await mongoConnect();
         const userData = await (User.findOne({ _id: id }) || Worker.findOne({ _id: id }));
         if (!userData) {
-            return NextResponse.json({ message: "User not found,Login First",success:false },{status:404});
+            return NextResponse.json({ message: "User not found,Login First", success: false }, { status: 404 });
         }
         else {
             const { uploadedFileUrls, text, amount, Signature } = await req.json();
@@ -60,5 +60,24 @@ export async function POST(req) {
         }
     } catch (error) {
         return NextResponse.json({ message: `Internal Server Error: ${error.message}` }, { status: 500 });
+    }
+}
+
+
+export async function GET(req) {
+    const id = await checkAuth(req);
+    const taskId = new URL(req.url).searchParams.get('id');
+    try {
+        const task = await Task.findOne({ _id: taskId });
+        if (!task) {
+            return NextResponse.json({ message: "Task Not Found", success: false }, { status: 404 });
+        }
+        else if(task.user != id){
+            return NextResponse.json({ message: "Task Not Found", success: false }, { status: 404 });
+        }
+        return NextResponse.json({ data:task, success: true }, { status: 200 });
+    }
+    catch (err) {
+        return NextResponse.json({ message: `Internal Server Error: ${err.message}`, success: false }, { status: 500 });
     }
 }

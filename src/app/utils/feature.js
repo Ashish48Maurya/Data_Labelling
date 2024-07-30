@@ -1,10 +1,15 @@
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
 import cookie from 'cookie'
+
+const connect = {};
 export async function mongoConnect() {
+    if (connect.isConnected) {
+        return;
+    }
     try {
-        // await mongoose.connect(process.env.MONGO_URL);
-        await mongoose.connect("mongodb://localhost:27017/EarnAsUGo");
+        const db = await mongoose.connect(process.env.MONGO_URL);
+        connect.isConnected = db.connection.readyState;
         console.log("Connection Successful...");
     } catch (err) {
         console.error(err);
@@ -20,7 +25,7 @@ export const checkAuth = async (req) => {
         const isPresent = req.headers.get('cookie')?.includes('token');
         const token = req.headers.get('cookie').split("=")[1];
         if (isPresent) {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET );
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
             return decoded._id;
         }
         return null;

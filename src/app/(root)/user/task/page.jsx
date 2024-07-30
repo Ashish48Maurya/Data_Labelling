@@ -7,7 +7,7 @@ export default function page() {
   return (
     <>
       <Navbar />
-      <UserTask/>
+      <h1>List All Task</h1>
     </>
   )
 }

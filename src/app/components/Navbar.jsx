@@ -14,7 +14,6 @@ export default function Navbar() {
     const [processing, setProcessing] = useState(false);
 
     const handlePayOut = async () => {
-        console.log("called");
         setDisable(true);
         setProcessing(true);
         try {

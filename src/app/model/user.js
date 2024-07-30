@@ -8,22 +8,17 @@ const UserSchema = new mongoose.Schema({
     tasks: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "task",
-    }],
-    payOuts: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "payout",
     }]
+    // payOuts: [{
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "payout",
+    // }]
 });
 
 const WorkerSchema = new mongoose.Schema({
     address: {
         type: String,
         required: true,
-    },
-    isVerified: {
-        type: Boolean,
-        required: true,
-        default: false,
     },
     pending_amt: {
         type: mongoose.Schema.Types.Decimal128,
