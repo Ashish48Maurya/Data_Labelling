@@ -66,18 +66,35 @@ export async function POST(req) {
 
 export async function GET(req) {
     const id = await checkAuth(req);
-    const taskId = new URL(req.url).searchParams.get('id');
-    try {
-        const task = await Task.findOne({ _id: taskId });
-        if (!task) {
-            return NextResponse.json({ message: "Task Not Found", success: false }, { status: 404 });
-        }
-        else if(task.user != id){
-            return NextResponse.json({ message: "Task Not Found", success: false }, { status: 404 });
-        }
-        return NextResponse.json({ data:task, success: true }, { status: 200 });
+    if(!id){
+        return NextResponse.json({ message:"Login First", success: false }, { status: 404 })
     }
-    catch (err) {
-        return NextResponse.json({ message: `Internal Server Error: ${err.message}`, success: false }, { status: 500 });
+    const taskId = new URL(req.url).searchParams.get('id');
+    if(taskId){
+        try {
+            const task = await Task.findOne({ _id: taskId });
+            if (!task) {
+                return NextResponse.json({ message: "Task Not Found", success: false }, { status: 404 });
+            }
+            else if(task.user != id){
+                return NextResponse.json({ message: "Task Not Found", success: false }, { status: 404 });
+            }
+            return NextResponse.json({ data:task, success: true }, { status: 200 });
+        }
+        catch (err) {
+            return NextResponse.json({ message: `Internal Server Error: ${err.message}`, success: false }, { status: 500 });
+        }
+    }
+    else{
+        try {
+            const task = await Task.find({user: id});
+            if (!task) {
+                return NextResponse.json({ message: "Task Not Found", success: false }, { status: 404 });
+            }
+            return NextResponse.json({ data:task, success: true }, { status: 200 });
+        }
+        catch (err) {
+            return NextResponse.json({ message: `Internal Server Error: ${err.message}`, success: false }, { status: 500 });
+        }
     }
 }
