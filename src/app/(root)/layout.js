@@ -18,7 +18,8 @@ export default function RootLayout({ children }) {
         [network]
     );
     return (
-        <html lang="en" className='mx-[20px]'>
+        // <html lang="en" className='mx-[20px]'>
+        <html lang="en">
             <body>
                 <AuthProvider>
                     <ConnectionProvider endpoint={endpoint}>

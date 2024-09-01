@@ -2,3 +2,14 @@
 @tailwind components;
 @tailwind utilities;
   
+.upload-image {
+    @apply flex flex-wrap overflow-y-scroll  justify-center my-[1vh] mx-[3vw] items-center overflow-hidden h-[46vh] w-full rounded-md bg-gray-300;
+}
+
+.image-container {
+    @apply relative h-full p-3 rounded-md filter contrast-125 brightness-110;
+}
+
+.uploaded-image {
+    @apply object-cover w-full h-full rounded-md gap-3 shadow-[4px_4px_8px_0px_black];
+}

@@ -42,30 +42,36 @@ export default function Navbar() {
     };
 
     return (
-        <div className='flex justify-between h-[60px] items-center border-b-2 border-orange-500 px-[20px]'>
-            <h2 className='font-bold text-sm lg:text-lg'>EarnAsUGo</h2>
 
-            {person === "user" && (
-                <Link href='/user/task'>
-                    <span className='font-medium hover:border-b-2 hover:border-orange-500 transition-all'>
-                        Tasks
-                    </span>
-                </Link>
-            )}
+        <div className="justify-center pt-[3vh]">
+            <div className=' mb-[3vh] bg-black mx-[4vw] rounded-[100px] text-white font-light flex justify-between items-center border-b-2 py-3 px-6'>
+                <h2 className='pl-5 title'>Earn As You Go</h2>
 
-            {publicKey && (
-                person === "worker" && (
-                    <button
-                        disabled={disable}
-                        onClick={handlePayOut}
-                        className='bg-black p-[10px] text-white font-semibold rounded-md'
-                    >
-                        {processing ? 'Processing...' : `Withdraw - ${amt?.$numberDecimal || 0} SOL`}
-                    </button>
-                )
-            )}
+                {person === "user" && (
+                    <Link href='/user/task'>
+                        <span className='hover:border-b-2 hover:border-orange-500 transition-all'>
+                            Tasks
+                        </span>
+                    </Link>
+                )}
 
-            <WalletMultiButton style={{ backgroundColor: "orange", color: "black" }} />
+                {publicKey && (
+                    person === "worker" && (
+                        <button
+                            disabled={disable}
+                            onClick={handlePayOut}
+                            className='bg-black p-[10px] text-white transition-all duration-200 hover:font-semibold hover:text-[12px] text-[14px] rounded-[50px] border px-5 font-light hover:shadow-[2px_2px_5px_rgba(255,255,255,0.5)] tracking-wider'
+                        >
+                            {processing ? 'Processing...' : `Withdraw - $${amt?.$numberDecimal || 0} SOL`}
+                        </button>
+
+                    )
+                )}
+
+                <WalletMultiButton style={{ backgroundColor: "black", color: "black", borderRadius: "50px", fontSize: "15px", fontWeight: "lighter", color: "white" }} />
+                {/* <WalletMultiButton className='bg-black text-yellow-300' /> */}
+            </div>
         </div>
+
     );
 }

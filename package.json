@@ -21,6 +21,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cookie": "^0.6.0",
+    "dotenv": "^16.4.5",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.412.0",
     "mongoose": "^8.5.1",
@@ -33,7 +34,8 @@
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
     "tweetnacl": "^1.0.3",
-    "tweetnacl-util": "^0.15.1"
+    "tweetnacl-util": "^0.15.1",
+    "vanilla-tilt": "^1.8.1"
   },
   "devDependencies": {
     "eslint": "^8",
